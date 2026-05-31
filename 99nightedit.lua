@@ -277,6 +277,52 @@ local Toggle = Tab:Toggle({
         end)
     end
 })
+local Section = Tab:Section({ 
+    Title = "Help Kid",
+})
+local Toggle = Tab:Toggle({
+    Title = "Auto Kid (Beta)",
+    Desc = "เด็กอัตโนมัติ (เบต้า)",
+    Type = "Checkbox",
+    Value = false,
+    Callback = function(state)
+        _G.AutoRescue = state
+        if not state then return end
+
+        task.spawn(function()
+            local player = game.Players.LocalPlayer
+            local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+            if not hrp then return end
+
+            while _G.AutoRescue do
+                local foundChild = nil
+                for _, obj in pairs(workspace:GetDescendants()) do
+                    if obj:IsA("Model") and obj.Name == "Lose Child" and obj.PrimaryPart then
+                        foundChild = obj
+                        break
+                    end
+                end
+
+                if foundChild then
+                    hrp.CFrame = foundChild.PrimaryPart.CFrame
+                    task.wait(0.5)
+
+                    for _, obj in pairs(workspace:GetDescendants()) do
+                        if obj:IsA("ProximityPrompt") then
+                            local dist = (obj.Parent.Position - hrp.Position).Magnitude
+                            if dist <= 50 then
+                                fireproximityprompt(obj)
+                            end
+                        end
+                    end
+                    task.wait(1)
+                else
+                    break -- Không còn đứa nào thì ngưng
+                end
+            end
+        end)
+    end
+})
 
 local Section = Tab:Section({ 
     Title = "Mob Settings",
