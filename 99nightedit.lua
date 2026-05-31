@@ -1,4 +1,26 @@
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+WindUI:AddTheme({
+    Name = "Sakura",
+    
+    Accent = Color3.fromHex("#F472B6"),     -- Hồng Sakura chủ đạo
+    Background = Color3.fromHex("#FFF1F2"), -- Nền hồng siêu nhạt
+    Outline = Color3.fromHex("#FDA4AF"),    -- Viền hồng nhẹ
+    Text = Color3.fromHex("#4C0519"),       -- Chữ hồng đậm (dễ đọc hơn trắng trên nền hồng nhạt)
+    Placeholder = Color3.fromHex("#FBCFE8"),
+    Button = Color3.fromHex("#EC4899"),     -- Nút nhấn hồng tươi
+    Icon = Color3.fromHex("#BE185D"),       -- Icon hồng đậm
+})
+WindUI:AddTheme({
+    Name = "Orange",
+    
+    Accent = Color3.fromHex("#F97316"),     -- Cam mặt trời chủ đạo
+    Background = Color3.fromHex("#FFF7ED"), -- Nền cam siêu nhạt
+    Outline = Color3.fromHex("#FDBA74"),    -- Viền cam nhẹ
+    Text = Color3.fromHex("#7C2D12"),       -- Chữ nâu cam đậm (để đọc cho rõ)
+    Placeholder = Color3.fromHex("#FFEDD5"),
+    Button = Color3.fromHex("#EA580C"),     -- Nút nhấn cam đậm
+    Icon = Color3.fromHex("#C2410C"),       -- Icon cam tối
+})
 local Window = WindUI:CreateWindow({
     Title = "36 Hub",
     Icon = "door-open",
@@ -37,28 +59,7 @@ Window:EditOpenButton({
     Enabled = true,
     Draggable = true,
 })
-WindUI:AddTheme({
-    Name = "Sakura",
-    
-    Accent = Color3.fromHex("#F472B6"),     -- Hồng Sakura chủ đạo
-    Background = Color3.fromHex("#FFF1F2"), -- Nền hồng siêu nhạt
-    Outline = Color3.fromHex("#FDA4AF"),    -- Viền hồng nhẹ
-    Text = Color3.fromHex("#4C0519"),       -- Chữ hồng đậm (dễ đọc hơn trắng trên nền hồng nhạt)
-    Placeholder = Color3.fromHex("#FBCFE8"),
-    Button = Color3.fromHex("#EC4899"),     -- Nút nhấn hồng tươi
-    Icon = Color3.fromHex("#BE185D"),       -- Icon hồng đậm
-})
-WindUI:AddTheme({
-    Name = "Orange",
-    
-    Accent = Color3.fromHex("#F97316"),     -- Cam mặt trời chủ đạo
-    Background = Color3.fromHex("#FFF7ED"), -- Nền cam siêu nhạt
-    Outline = Color3.fromHex("#FDBA74"),    -- Viền cam nhẹ
-    Text = Color3.fromHex("#7C2D12"),       -- Chữ nâu cam đậm (để đọc cho rõ)
-    Placeholder = Color3.fromHex("#FFEDD5"),
-    Button = Color3.fromHex("#EA580C"),     -- Nút nhấn cam đậm
-    Icon = Color3.fromHex("#C2410C"),       -- Icon cam tối
-})
+
 
 
 local Tab = Window:Tab({
