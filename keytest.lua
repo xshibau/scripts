@@ -1,8 +1,11 @@
-local Key = "Gemini béo"
-local Response = game:HttpGet("https://raw.githubusercontent.com/User/Repo/main/keys.txt")
+local list = {
+    ["script-962961096558"] = true,
+    ["Key123"] = true,
+    ["TaoLaBoss"] = true
+}
 
-if Response:find(Key) then
-    loadstring(game:HttpGet("https://link-script-chinh.lua"))()
+if list[script_key] then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xshibau/scripts/refs/heads/main/36hub_script-1780253539920.lua"))()
 else
-    return
+    error("Key sai")
 end
