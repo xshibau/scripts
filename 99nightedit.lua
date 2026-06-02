@@ -165,6 +165,41 @@ local Toggle = Tab:Toggle({
         end)
     end
 })
+local Toggle = Tab:Toggle({
+    Title = "Auto Cooked",
+    Desc = "Improved and fixed the bug that didn't bring the cooked food to the desired result.",
+    Type = "Checkbox",
+    Value = false,
+    Callback = function(state)
+        _G.AutoMorsel = state
+        if not state then return end
+
+        task.spawn(function()
+            local cookPos = CFrame.new(0.5406733, 12.499372, -0.7186632)
+            local processed = {} -- List những món đã xử lý xong
+
+            while _G.AutoMorsel do
+                task.wait(0.2)
+                
+                for _, obj in pairs(workspace:GetChildren()) do
+                    if obj.Name == "Morsel" and obj:IsA("Model") and obj.PrimaryPart then
+                        -- Check xem đã xử lý chưa, nếu chưa thì mới lôi
+                        if not processed[obj] then
+                            obj:PivotTo(cookPos)
+                            processed[obj] = true
+                            
+                            -- Đợi một chút để vật thể ổn định tại vị trí mới
+                            task.wait(0.5) 
+                        end
+                    end
+                end
+            end
+            
+            table.clear(processed)
+        end)
+    end
+})
+
 
 local Toggle = Tab:Toggle({
     Title = "Auto Farm Tree",
