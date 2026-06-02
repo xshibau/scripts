@@ -77,35 +77,29 @@ local Section = Tab:Section({
 })
 local Toggle = Tab:Toggle({
     Title = "Auto Bring Fire",
-    Desc = "ย้ายไอเทมเข้าเตา",
+    Desc = "Upgraded and bug fixes have been implemented, eliminating the previous lag issues.",
     Type = "Checkbox",
     Value = false,
     Callback = function(state)
         _G.AutoLogBring = state
-        
         if not state then return end
         
-        if not _G.broughtModelsPermanent then 
-            _G.broughtModelsPermanent = {} 
-        end
+        local brought = {}
+        local pos = CFrame.new(0.5406733, 12.499372, -0.7186632)
+        local list = {["Log"] = true, ["Fuel"] = true, ["Coal"] = true}
 
         task.spawn(function()
-            local cookPos = CFrame.new(0.5406733, 12.499372, -0.7186632)
-            local modelNames = {"Log", "Fuel", "Coal"}
-
             while _G.AutoLogBring do
-                task.wait(0.1)
-
-                for _, possibleModel in pairs(workspace:GetDescendants()) do
-                    if possibleModel:IsA("Model") and possibleModel.PrimaryPart and table.find(modelNames, possibleModel.Name) then
-                        if not _G.broughtModelsPermanent[possibleModel] then
-                            possibleModel:PivotTo(cookPos)
-                            _G.broughtModelsPermanent[possibleModel] = true
-                            task.wait(0.15)
-                        end
+                for _, obj in pairs(workspace:GetChildren()) do
+                    if obj:IsA("Model") and list[obj.Name] and obj.PrimaryPart and not brought[obj] then
+                        obj:PivotTo(pos)
+                        brought[obj] = true
+                        task.wait(0.1)
                     end
                 end
+                task.wait(0.5)
             end
+            table.clear(brought)
         end)
     end
 })
@@ -171,65 +165,7 @@ local Toggle = Tab:Toggle({
         end)
     end
 })
-local Toggle = Tab:Toggle({
-    Title = "Auto Cooked",
-    Desc = "ขายอัตโนมัติ",
-    Type = "Checkbox",
-    Value = false,
-    Callback = function(state)
-        _G.AutoMorsel = state
-        if not state then return end
 
-        task.spawn(function()
-            local player = game.Players.LocalPlayer
-            local cookPos = CFrame.new(0.5406733, 12.499372, -0.7186632)
-            local originalPos = nil
-
-            -- Lưu vị trí hiện tại của mày trước khi "đi làm nhiệm vụ"
-            local char = player.Character or player.CharacterAdded:Wait()
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            if hrp then originalPos = hrp.CFrame end
-
-            while _G.AutoMorsel do
-                task.wait(0.1)
-
-                local characterNow = player.Character
-                local humanoidRootPartNow = characterNow and characterNow:FindFirstChild("HumanoidRootPart")
-                
-                if humanoidRootPartNow then
-                    local nearestMorsel = nil
-                    local nearestDistance = math.huge
-                    
-                    for _, possibleMorsel in pairs(workspace:GetDescendants()) do
-                        if possibleMorsel:IsA("Model") and possibleMorsel.Name == "Morsel" and possibleMorsel.PrimaryPart then
-                            local dist = (possibleMorsel.PrimaryPart.Position - humanoidRootPartNow.Position).Magnitude
-                            if dist < nearestDistance then
-                                nearestDistance = dist
-                                nearestMorsel = possibleMorsel
-                            end
-                        end
-                    end
-
-                    if nearestMorsel then
-                        humanoidRootPartNow.CFrame = nearestMorsel.PrimaryPart.CFrame
-                        -- Dùng PivotTo cho nó mượt, nếu game chặn thì dùng lại SetPrimaryPartCFrame
-                        nearestMorsel:PivotTo(cookPos) 
-                        task.wait(1) -- Đợi 1s cho nó "chín" rồi tính tiếp
-                    end
-                end
-            end
-
-            -- Khi tắt Toggle thì bay về chỗ cũ
-            if originalPos then
-                local finalChar = player.Character
-                local finalHRP = finalChar and finalChar:FindFirstChild("HumanoidRootPart")
-                if finalHRP then
-                    finalHRP.CFrame = originalPos
-                end
-            end
-        end)
-    end
-})
 local Toggle = Tab:Toggle({
     Title = "Auto Farm Tree",
     Desc = "ฟาร์มต้นไม้ (Small Tree)",
