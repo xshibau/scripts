@@ -1,5 +1,16 @@
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 WindUI:AddTheme({
+    Name = "Premium",
+    
+    Accent = Color3.fromHex("#EC4899"),     
+    Background = Color3.fromHex("#7F1D1D"), 
+    Outline = Color3.fromHex("#FFFDD0"),    
+    Text = Color3.fromHex("#FFFDD0"),        
+    Placeholder = Color3.fromHex("#FFFDD0"),
+    Button = Color3.fromHex("#1C1C1C"),     
+    Icon = Color3.fromHex("#BE185D"),      
+})
+WindUI:AddTheme({
     Name = "Sakura",
     
     Accent = Color3.fromHex("#F472B6"),     -- Hồng Sakura chủ đạo
@@ -32,7 +43,7 @@ local Window = WindUI:CreateWindow({
     MaxSize = Vector2.new(750, 560),
     ToggleKey = Enum.KeyCode.LeftShift,
     Transparent = true,
-    Theme = "Sakura",
+    Theme = "Premium",
     Resizable = true,
     SideBarWidth = 180,
     BackgroundImageTransparency = 0.42,
