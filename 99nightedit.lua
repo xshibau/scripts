@@ -75,9 +75,11 @@ local Settings = Window:Tab({
 local Section = Tab:Section({ 
     Title = "Main Fire",
 })
+local CollectionService = game:GetService("CollectionService")
+
 local Toggle = Tab:Toggle({
-    Title = "Auto Bring Fire",
-    Desc = "Upgraded and bug fixes have been implemented, eliminating the previous lag issues.",
+    Title = "Auto Bring Fire (Full Fix)",
+    Desc = "",
     Type = "Checkbox",
     Value = false,
     Callback = function(state)
@@ -85,29 +87,36 @@ local Toggle = Tab:Toggle({
         if not state then return end
         
         local brought = {}
-        local pos = CFrame.new(0.5406733, 12.499372, -0.7186632)
+        local pos = CFrame.new(0.54, 12.5, -0.72) -- Làm tròn cho đỡ rối
         local list = {["Log"] = true, ["Fuel"] = true, ["Coal"] = true}
 
         task.spawn(function()
             while _G.AutoLogBring do
                 for _, obj in pairs(workspace:GetChildren()) do
-                    if obj:IsA("Model") and list[obj.Name] and obj.PrimaryPart and not brought[obj] then
-                        obj:PivotTo(pos)
-                        brought[obj] = true
-                        task.wait(0.1)
+                    -- Check xem có đúng tên trong list và là Model không
+                    if list[obj.Name] and obj:IsA("Model") then
+                        -- Lấy PrimaryPart hoặc cái Part đầu tiên tìm thấy
+                        local targetPart = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+                        
+                        if targetPart and not brought[obj] then
+                            -- Chỉnh lại CFrame một chút để tránh kẹt
+                            obj:PivotTo(pos)
+                            brought[obj] = true
+                        end
                     end
                 end
-                task.wait(0.5)
+                task.wait(0.3) -- Giảm delay tí cho mượt
             end
-            table.clear(brought)
         end)
     end
 })
+
 
 local Toggle = Tab:Toggle({
     Title = "Auto Fire",
     Desc = "ยิงอัตโนมัติ",
     Type = "Checkbox",
+    Locked = true,
     Value = false,
     Callback = function(state)
         _G.AutoLog = state
