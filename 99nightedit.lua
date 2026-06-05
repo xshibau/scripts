@@ -38,9 +38,9 @@ local Window = WindUI:CreateWindow({
     Author = "ThanhloAsian",
     Folder = "MySuperHub",
 
-    Size = UDim2.fromOffset(550, 440),
+    Size = UDim2.fromOffset(750, 640),
     MinSize = Vector2.new(300, 280),
-    MaxSize = Vector2.new(750, 560),
+    MaxSize = Vector2.new(1050, 800),
     ToggleKey = Enum.KeyCode.LeftShift,
     Transparent = true,
     Theme = "Premium",
