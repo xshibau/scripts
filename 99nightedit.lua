@@ -38,17 +38,17 @@ local Window = WindUI:CreateWindow({
     Author = "ThanhloAsian",
     Folder = "MySuperHub",
 
-    Size = UDim2.fromOffset(670, 640),
+    Size = UDim2.fromOffset(550, 480),
     MinSize = Vector2.new(300, 280),
     MaxSize = Vector2.new(1050, 800),
     ToggleKey = Enum.KeyCode.LeftShift,
     Transparent = true,
     Theme = "Premium",
     Resizable = true,
-    SideBarWidth = 200,
+    SideBarWidth = 180,
     BackgroundImageTransparency = 0.42,
     HideSearchBar = true,
-    ScrollBarEnabled = false,
+    ScrollBarEnabled = true,
 
     User = {
         Enabled = true,
