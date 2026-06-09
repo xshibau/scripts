@@ -89,7 +89,7 @@ task.spawn(function()
     
   local TweenService = game:GetService("TweenService")
 
-local TARGET_POSITION = Vector3.new(-38, 17, 38117)
+local TARGET_POSITION = Vector3.new(5, 4, 38084)
 local SPEED = getgenv().Speed or 300 
 
 local player = game.Players.LocalPlayer
