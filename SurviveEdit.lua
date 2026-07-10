@@ -354,7 +354,7 @@ local infJumpEnabled = false
 local jumpConnection = nil
 
 
-Tab2:Toggle("Speer Boost (Premium)", false, function(value)
+Tab2:Toggle("Speed Boost (Premium)", false, function(value)
     isSpeedEnabled = value
     
     if isSpeedEnabled then
