@@ -280,7 +280,7 @@ function uitab:Tab(text)
     MainFramePage.Parent = PageList
     MainFramePage.Active = true
     MainFramePage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    MainFramePage.BackgroundTransparency = 0
+    MainFramePage.BackgroundTransparency = 1
     MainFramePage.BorderSizePixel = 0
     MainFramePage.Size = UDim2.new(0, 445, 0, 303)
     MainFramePage.CanvasSize = UDim2.new(0, 0, 0, 0)
