@@ -172,6 +172,7 @@ Tab1:Toggle("Attack Mob (Gun)", false, function(value)
         targetMob = nil
     end
 end)
+
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -183,41 +184,62 @@ local farmConnection = nil
 local clickThread = nil
 local currentTween = nil
 
+-- Hàm tìm máu tùy biến trong nhân vật hoặc Player
+local function getCustomHealth()
+    local character = player.Character
+    if not character then return 100 end -- Mặc định coi như đầy máu nếu chưa load xong
+    
+    -- Quét tìm các Object chứa máu phổ biến (Health, HP, MaxHealth, vv)
+    local healthObj = character:FindFirstChild("Health") or character:FindFirstChild("HP") 
+        or player:FindFirstChild("Health") or player:FindFirstChild("HP")
+        or character:FindFirstChildWhichIsA("NumberValue") or character:FindFirstChildWhichIsA("IntValue")
+
+    if healthObj and (healthObj:IsA("NumberValue") or healthObj:IsA("IntValue")) then
+        return healthObj.Value
+    end
+    
+    -- Nếu có Humanoid nhưng game đổi cách tính khác, thử check thuộc tính Health gốc
+    local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+    if humanoid then return humanoid.Health end
+
+    return 100 -- Nếu đéo tìm thấy gì thì coi như bất tử, trả về 100 cho đỡ lỗi
+end
+
 local function getClosestMob()
-    local closestMob = nil
-    local shortestDistance = math.huge
     local character = player.Character
     if not character then return nil end
     local hrp = character:FindFirstChild("HumanoidRootPart")
     if not hrp then return nil end
 
+    local closestMob = nil
+    local shortestDistance = math.huge
+
     for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("Humanoid") and obj.Parent ~= character and obj.Health > 0 then
-            local mobHrp = obj.Parent:FindFirstChild("HumanoidRootPart")
-            if mobHrp then
-                local distance = (hrp.Position - mobHrp.Position).Magnitude
-                if distance < shortestDistance then
-                    shortestDistance = distance
-                    closestMob = obj.Parent
-                end
+        -- Tìm các thực thể có HumanoidRootPart và không phải bản thân mày
+        if obj:IsA("Model") and obj ~= character and obj:FindFirstChild("HumanoidRootPart") then
+            local mobHrp = obj.HumanoidRootPart
+            local distance = (hrp.Position - mobHrp.Position).Magnitude
+            if distance < shortestDistance then
+                shortestDistance = distance
+                closestMob = obj
             end
         end
     end
     return closestMob
 end
 
-Tab1:Toggle("Auto Attacks Mob (Premium)", false, function(value)
+Tab1:Toggle("Attacks Mob (Gun/Sword)", false, function(value)
     isRunning = value
     
     if isRunning then
         farmConnection = RunService.Heartbeat:Connect(function()
             local character = player.Character
             local hrp = character and character:FindFirstChild("HumanoidRootPart")
-            local humanoid = character and character:FindFirstChild("Humanoid")
-            if not hrp or not humanoid then return end
+            if not hrp then return end
             
-            -- CẤP CỨU: Nếu dưới 10 máu, hủy ngay tween và sút lên trời cao 500 studs
-            if humanoid.Health < 10 then
+            -- CẤP CỨU: Lấy máu tùy biến, dưới 10 là sút lên trời ngay
+            local currentHealth = getCustomHealth()
+            if currentHealth < 10 then
                 if currentTween then currentTween:Cancel() currentTween = nil end
                 hrp.CFrame = hrp.CFrame + Vector3.new(0, 500, 0)
                 task.wait(0.5)
@@ -229,7 +251,6 @@ Tab1:Toggle("Auto Attacks Mob (Premium)", false, function(value)
                 local mobHrp = targetMob.HumanoidRootPart
                 local targetCFrame = mobHrp.CFrame * CFrame.new(0, 15, 0)
                 
-                -- Tính toán khoảng cách để giữ tốc độ lướt ổn định (ở đây ví dụ tốc độ là 50 studs/s)
                 local distance = (hrp.Position - targetCFrame.Position).Magnitude
                 local duration = distance / 50
                 
@@ -246,10 +267,8 @@ Tab1:Toggle("Auto Attacks Mob (Premium)", false, function(value)
             while isRunning do
                 task.wait(1)
                 if isRunning then
-                    local character = player.Character
-                    local humanoid = character and character:FindFirstChild("Humanoid")
-                    -- Chỉ click khi máu trâu, đang hấp hối bay lên trời thì ngưng click
-                    if humanoid and humanoid.Health >= 10 then
+                    local currentHealth = getCustomHealth()
+                    if currentHealth >= 10 then
                         VirtualUser:CaptureController()
                         VirtualUser:ClickButton1(Vector2.new(0, 0))
                     end
@@ -262,6 +281,7 @@ Tab1:Toggle("Auto Attacks Mob (Premium)", false, function(value)
         if currentTween then currentTween:Cancel() currentTween = nil end
     end
 end)
+
 
 
 Tab1:Seperator("Bring Item")
