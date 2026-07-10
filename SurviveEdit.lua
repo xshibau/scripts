@@ -160,29 +160,40 @@ Tab1:Button("Resetlist", function()
     end
 end)
 
+Tab2:Seperator("Players")
+
+local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-
--- Quản lý vụ đổi Character mới khi nhân vật bị reset/chết
-player.CharacterAdded:Connect(function(newChar)
-    character = newChar
-    humanoid = newChar:WaitForChild("Humanoid")
-end)
-
+local speedConnection = nil
+local isSpeedEnabled = false
+local targetSpeed = 100
 -- Biến cấu hình cho Inf Jump
 local infJumpEnabled = false
 local jumpConnection = nil
 
--- 1. Toggle Speed 100
-Tab2:Toggle("Speed Boost", false, function(value)
-    if value then
-        humanoid.WalkSpeed = 100
+
+Tab2:Toggle("Xịn Speed 🗿", false, function(value)
+    isSpeedEnabled = value
+    
+    if isSpeedEnabled then
+        speedConnection = RunService.Heartbeat:Connect(function(deltaTime)
+            local character = player.Character
+            local hrp = character and character:FindFirstChild("HumanoidRootPart")
+            local humanoid = character and character:FindFirstChild("Humanoid")
+            
+            if hrp and humanoid and humanoid.MoveDirection.Magnitude > 0 then
+                -- Tính toán vị trí mới dựa trên hướng di chuyển và delta time để mượt mà
+                local velocity = humanoid.MoveDirection * targetSpeed
+                hrp.CFrame = hrp.CFrame + (velocity * deltaTime)
+            end
+        end)
     else
-        humanoid.WalkSpeed = 16
+        if speedConnection then
+            speedConnection:Disconnect()
+            speedConnection = nil
+        end
     end
 end)
 
