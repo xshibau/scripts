@@ -1,7 +1,7 @@
 
 local DarkraiX = loadstring(game:HttpGet("https://raw.githubusercontent.com/xshibau/scripts/refs/heads/main/Uiscript.lua", true))()
 
-local Library = DarkraiX:Window("Aura Hub [Premium]","","",Enum.KeyCode.RightControl);
+local Library = DarkraiX:Window("Aura Hub [P]","","",Enum.KeyCode.RightControl);
 
 Tab1 = Library:Tab("Main Farm")
 Tab2 = Library:Tab("Players Farm")
