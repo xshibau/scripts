@@ -22,7 +22,7 @@ Tab1:Toggle("Auto Survive (Beta)", false, function(value)
             bp = Instance.new("BodyPosition")
             bp.Name = "FlyHeightBP"
             bp.MaxForce = Vector3.new(0, math.huge, 0) -- Chỉ tác dụng lực lên trục Y (độ cao)
-            bp.Position = Vector3.new(0, hrp.Position.Y + 40, 0)
+            bp.Position = Vector3.new(0, hrp.Position.Y + 28, 0)
             bp.Parent = hrp
         end
     else
@@ -83,7 +83,7 @@ Tab1:Toggle("Attack Mob (Gun)", false, function(value)
             
             if targetMob and targetMob:FindFirstChild("HumanoidRootPart") then
                 local mobHrp = targetMob.HumanoidRootPart
-                hrp.CFrame = mobHrp.CFrame * CFrame.new(0, 10, 0)
+                hrp.CFrame = mobHrp.CFrame * CFrame.new(0, 16, 0)
                 camera.CFrame = CFrame.new(camera.CFrame.Position, mobHrp.Position)
             end
         end)
