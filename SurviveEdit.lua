@@ -6,6 +6,70 @@ local Library = DarkraiX:Window("Aura Hub","","",Enum.KeyCode.RightControl);
 Tab1 = Library:Tab("Main Farm")
 Tab2 = Library:Tab("Players Farm")
 
+Tab1:Seperator("Food")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local VirtualUser = game:GetService("VirtualUser")
+
+local player = Players.LocalPlayer
+local burgerConnection = nil
+local isBurgerRunning = false
+
+local function findAndEatBurger()
+    local character = player.Character
+    local hrp = character and character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Tool") and string.lower(obj.Name) == "burger" then
+            local prompt = obj:FindFirstChildWhichIsA("ProximityPrompt") or obj:FindFirstChildWhichIsA("ProximityPrompt", true)
+            
+            if not prompt then
+                for _, child in pairs(obj:GetDescendants()) do
+                    if child:IsA("ProximityPrompt") then
+                        prompt = child
+                        break
+                    end
+                end
+            end
+
+            if prompt then
+                local targetPart = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
+                if targetPart then
+                    hrp.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                    task.wait(0.1)
+                    
+                    prompt:InputHoldBegin()
+                    task.wait(prompt.HoldDuration)
+                    prompt:InputHoldEnd()
+                    
+                    task.wait(0.1)
+                    VirtualUser:CaptureController()
+                    VirtualUser:ClickButton1(Vector2.new(0, 0))
+                    
+                    break
+                end
+            end
+        end
+    end
+end
+
+Tab1:Toggle("Auto Eat Food", false, function(value)
+    isBurgerRunning = value
+    
+    if isBurgerRunning then
+        burgerConnection = RunService.Heartbeat:Connect(function()
+            if isBurgerRunning then
+                findAndEatBurger()
+            end
+        end)
+    else
+        if burgerConnection then
+            burgerConnection:Disconnect()
+            burgerConnection = nil
+        end
+    end
+end)
 
 Tab1:Seperator("Survive")
 Tab1:Toggle("Auto Survive (Beta)", false, function(value)
@@ -32,6 +96,7 @@ Tab1:Toggle("Auto Survive (Beta)", false, function(value)
         end
     end
 end)
+
 Tab1:Seperator("Farming")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -214,6 +279,33 @@ Tab2:Toggle("Infinite Jump", false, function(value)
         end
     end
 end)
+local Lighting = game:GetService("Lighting")
+
+local isFullBright = false
+local origBrightness = Lighting.Brightness
+local origClockTime = Lighting.ClockTime
+local origFogEnd = Lighting.FogEnd
+local origGlobalShadows = Lighting.GlobalShadows
+local origAmbient = Lighting.Ambient
+
+Tab2:Toggle("Full Bright", false, function(value)
+    isFullBright = value
+    
+    if isFullBright then
+        Lighting.Brightness = 2
+        Lighting.ClockTime = 14
+        Lighting.FogEnd = 100000
+        Lighting.GlobalShadows = false
+        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+    else
+        Lighting.Brightness = origBrightness
+        Lighting.ClockTime = origClockTime
+        Lighting.FogEnd = origFogEnd
+        Lighting.GlobalShadows = origGlobalShadows
+        Lighting.Ambient = origAmbient
+    end
+end)
+
 Tab2:Seperator("Esp")
 local RunService = game:GetService("RunService")
 local PlayersService = game:GetService("Players")
