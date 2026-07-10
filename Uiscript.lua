@@ -270,9 +270,9 @@ function uitab:Tab(text)
     TabButton.BorderColor3 = _G.Color -- Đổi màu viền tính năng thành Đỏ
     TabButton.BorderSizePixel = 0 -- Bỏ viền thô kệch cho đẹp mắt
     TabButton.Size = UDim2.new(0, 130, 0, 23)
-    TabButton.Font = Enum.Font.GothamSemibold
+    TabButton.Font = Enum.Font.GothamBold
     TabButton.TextColor3 = Color3.fromRGB(225, 225, 225)
-    TabButton.TextSize = 15.000
+    TabButton.TextSize = 17.000
     TabButton.TextTransparency = 0.500
 
     local MainFramePage = Instance.new("ScrollingFrame")
@@ -280,7 +280,7 @@ function uitab:Tab(text)
     MainFramePage.Parent = PageList
     MainFramePage.Active = true
     MainFramePage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    MainFramePage.BackgroundTransparency = 1.000
+    MainFramePage.BackgroundTransparency = 0
     MainFramePage.BorderSizePixel = 0
     MainFramePage.Size = UDim2.new(0, 445, 0, 303)
     MainFramePage.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -980,43 +980,31 @@ function uitab:Tab(text)
         return labelfunc
     end
 
-    function main:Seperator(text)
-        local Seperator = Instance.new("Frame")
-        local Sep1 = Instance.new("Frame")
-        local Sep2 = Instance.new("TextLabel")
-        local Sep3 = Instance.new("Frame")
+   function main:Seperator(text)
+    local Seperator = Instance.new("Frame")
+    local Sep2 = Instance.new("TextLabel")
+    
+    -- Khung chứa chính (Giữ nguyên kích thước cũ)
+    Seperator.Name = "Seperator"
+    Seperator.Parent = MainFramePage
+    Seperator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Seperator.BackgroundTransparency = 1.000
+    Seperator.Size = UDim2.new(0, 425, 0, 20)
+    
+    -- Nhãn chữ (Đã in đậm và căn trái)
+    Sep2.Name = "Sep2"
+    Sep2.Parent = Seperator
+    Sep2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Sep2.BackgroundTransparency = 1.000
+    Sep2.Position = UDim2.new(0, 5, 0, 0) -- Thêm chút khoảng cách 5px từ lề trái cho đẹp, không thích thì sửa về 0
+    Sep2.Size = UDim2.new(0, 420, 0, 20)  -- Kéo rộng size ra để text dài không bị cắt
+    Sep2.Font = Enum.Font.GothamBold      -- Đã đổi sang Bold cho đúng ý mày
+    Sep2.Text = text
+    Sep2.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Sep2.TextSize = 17.000
+    Sep2.TextXAlignment = Enum.TextXAlignment.Left -- Căn lề trái ở đây chứ đâu
+        end
         
-        Seperator.Name = "Seperator"
-        Seperator.Parent = MainFramePage
-        Seperator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        Seperator.BackgroundTransparency = 1.000
-        Seperator.Size = UDim2.new(0, 425, 0, 20)
-        
-        Sep1.Name = "Sep1"
-        Sep1.Parent = Seperator
-        Sep1.BackgroundColor3 = _G.Color
-        Sep1.BorderSizePixel = 0
-        Sep1.Position = UDim2.new(0, 0, 0, 10)
-        Sep1.Size = UDim2.new(0, 60, 0, 1) -- Thu ngắn thanh ngang
-        
-        Sep2.Name = "Sep2"
-        Sep2.Parent = Seperator
-        Sep2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        Sep2.BackgroundTransparency = 1.000
-        Sep2.Position = UDim2.new(0, 162, 0, 0) -- Căn giữa lại text
-        Sep2.Size = UDim2.new(0, 100, 0, 20)
-        Sep2.Font = Enum.Font.GothamSemibold
-        Sep2.Text = text
-        Sep2.TextColor3 = Color3.fromRGB(255, 255, 255)
-        Sep2.TextSize = 14.000
-        
-        Sep3.Name = "Sep3"
-        Sep3.Parent = Seperator
-        Sep3.BackgroundColor3 = _G.Color
-        Sep3.BorderSizePixel = 0
-        Sep3.Position = UDim2.new(0, 365, 0, 10)
-        Sep3.Size = UDim2.new(0, 60, 0, 1)
-    end
 
     function main:Line()
         local Linee = Instance.new("Frame")
