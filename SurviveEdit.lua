@@ -12,16 +12,19 @@ local Players = game:GetService("Players")
 local VirtualUser = game:GetService("VirtualUser")
 
 local player = Players.LocalPlayer
-local burgerConnection = nil
-local isBurgerRunning = false
+local foodConnection = nil
+local isFoodRunning = false
 
-local function findAndEatBurger()
+-- Danh sách các món ăn mày muốn săn (viết thường hết để check cho chuẩn)
+local targetFoods = {["burger"] = true, ["hotdog"] = true, ["ham"] = true}
+
+local function findAndEatFood()
     local character = player.Character
     local hrp = character and character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
 
     for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("Tool") and string.lower(obj.Name) == "burger" then
+        if obj:IsA("Tool") and targetFoods[string.lower(obj.Name)] then
             local prompt = obj:FindFirstChildWhichIsA("ProximityPrompt") or obj:FindFirstChildWhichIsA("ProximityPrompt", true)
             
             if not prompt then
@@ -55,21 +58,22 @@ local function findAndEatBurger()
 end
 
 Tab1:Toggle("Auto Eat Food", false, function(value)
-    isBurgerRunning = value
+    isFoodRunning = value
     
-    if isBurgerRunning then
-        burgerConnection = RunService.Heartbeat:Connect(function()
-            if isBurgerRunning then
-                findAndEatBurger()
+    if isFoodRunning then
+        foodConnection = RunService.Heartbeat:Connect(function()
+            if isFoodRunning then
+                findAndEatFood()
             end
         end)
     else
-        if burgerConnection then
-            burgerConnection:Disconnect()
-            burgerConnection = nil
+        if foodConnection then
+            foodConnection:Disconnect()
+            foodConnection = nil
         end
     end
 end)
+
 
 Tab1:Seperator("Survive")
 Tab1:Toggle("Auto Survive (Beta)", false, function(value)
@@ -168,6 +172,97 @@ Tab1:Toggle("Attack Mob (Gun)", false, function(value)
         targetMob = nil
     end
 end)
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local VirtualUser = game:GetService("VirtualUser")
+
+local player = Players.LocalPlayer
+local isRunning = false
+local farmConnection = nil
+local clickThread = nil
+local currentTween = nil
+
+local function getClosestMob()
+    local closestMob = nil
+    local shortestDistance = math.huge
+    local character = player.Character
+    if not character then return nil end
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return nil end
+
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Humanoid") and obj.Parent ~= character and obj.Health > 0 then
+            local mobHrp = obj.Parent:FindFirstChild("HumanoidRootPart")
+            if mobHrp then
+                local distance = (hrp.Position - mobHrp.Position).Magnitude
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    closestMob = obj.Parent
+                end
+            end
+        end
+    end
+    return closestMob
+end
+
+Tab1:Toggle("Auto Attacks Mob (Premium)", false, function(value)
+    isRunning = value
+    
+    if isRunning then
+        farmConnection = RunService.Heartbeat:Connect(function()
+            local character = player.Character
+            local hrp = character and character:FindFirstChild("HumanoidRootPart")
+            local humanoid = character and character:FindFirstChild("Humanoid")
+            if not hrp or not humanoid then return end
+            
+            -- CẤP CỨU: Nếu dưới 10 máu, hủy ngay tween và sút lên trời cao 500 studs
+            if humanoid.Health < 10 then
+                if currentTween then currentTween:Cancel() currentTween = nil end
+                hrp.CFrame = hrp.CFrame + Vector3.new(0, 500, 0)
+                task.wait(0.5)
+                return
+            end
+            
+            local targetMob = getClosestMob()
+            if targetMob and targetMob:FindFirstChild("HumanoidRootPart") then
+                local mobHrp = targetMob.HumanoidRootPart
+                local targetCFrame = mobHrp.CFrame * CFrame.new(0, 15, 0)
+                
+                -- Tính toán khoảng cách để giữ tốc độ lướt ổn định (ở đây ví dụ tốc độ là 50 studs/s)
+                local distance = (hrp.Position - targetCFrame.Position).Magnitude
+                local duration = distance / 50
+                
+                if currentTween then currentTween:Cancel() end
+                
+                currentTween = TweenService:Create(hrp, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
+                currentTween:Play()
+            else
+                if currentTween then currentTween:Cancel() currentTween = nil end
+            end
+        end)
+        
+        clickThread = task.spawn(function()
+            while isRunning do
+                task.wait(1)
+                if isRunning then
+                    local character = player.Character
+                    local humanoid = character and character:FindFirstChild("Humanoid")
+                    -- Chỉ click khi máu trâu, đang hấp hối bay lên trời thì ngưng click
+                    if humanoid and humanoid.Health >= 10 then
+                        VirtualUser:CaptureController()
+                        VirtualUser:ClickButton1(Vector2.new(0, 0))
+                    end
+                end
+            end
+        end)
+    else
+        if farmConnection then farmConnection:Disconnect() farmConnection = nil end
+        if clickThread then task.cancel(clickThread) clickThread = nil end
+        if currentTween then currentTween:Cancel() currentTween = nil end
+    end
+end)
+
 
 Tab1:Seperator("Bring Item")
 local MapItems = workspace:WaitForChild("Map"):WaitForChild("Util"):WaitForChild("Items")
