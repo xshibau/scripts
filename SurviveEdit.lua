@@ -214,4 +214,176 @@ Tab2:Toggle("Infinite Jump", false, function(value)
         end
     end
 end)
+Tab2:Seperator("Esp")
+local RunService = game:GetService("RunService")
+local PlayersService = game:GetService("Players")
 
+local Camera = workspace.CurrentCamera
+local Lines = {}
+local Quads = {}
+local espConnection = nil
+local isEspEnabled = false
+
+local function HasCharacter(Player)
+    return Player ~= PlayersService.LocalPlayer and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+end
+
+local function DrawQuad(PosA, PosB, PosC, PosD)
+    local PosAScreen, PosAVisible = Camera:WorldToViewportPoint(PosA)
+    local PosBScreen, PosBVisible = Camera:WorldToViewportPoint(PosB)
+    local PosCScreen, PosCVisible = Camera:WorldToViewportPoint(PosC)
+    local PosDScreen, PosDVisible = Camera:WorldToViewportPoint(PosD)
+
+    if not PosAVisible and not PosBVisible and not PosCVisible and not PosDVisible then return end
+
+    local Quad = Drawing.new("Quad")
+    Quad.Thickness = .5
+    Quad.Color = Color3.fromRGB(255, 255, 255)
+    Quad.Transparency = .25
+    Quad.ZIndex = 1
+    Quad.Filled = true
+    Quad.Visible = true
+    Quad.PointA = Vector2.new(PosAScreen.X, PosAScreen.Y)
+    Quad.PointB = Vector2.new(PosBScreen.X, PosBScreen.Y)
+    Quad.PointC = Vector2.new(PosCScreen.X, PosCScreen.Y)
+    Quad.PointD = Vector2.new(PosDScreen.X, PosDScreen.Y)
+
+    table.insert(Quads, Quad)
+end
+
+local function DrawLine(From, To)
+    local FromScreen, FromVisible = Camera:WorldToViewportPoint(From)
+    local ToScreen, ToVisible = Camera:WorldToViewportPoint(To)
+
+    if not FromVisible and not ToVisible then return end
+
+    local Line = Drawing.new("Line")
+    Line.Thickness = 1
+    Line.From = Vector2.new(FromScreen.X, FromScreen.Y)
+    Line.To = Vector2.new(ToScreen.X, ToScreen.Y)
+    Line.Color = Color3.fromRGB(255, 255, 255)
+    Line.Transparency = 1
+    Line.ZIndex = 1
+    Line.Visible = true
+
+    table.insert(Lines, Line)
+end
+
+local function GetCorners(Part)
+    local CF, Size, Corners = Part.CFrame, Part.Size / 2, {}
+    for X = -1, 1, 2 do for Y = -1, 1, 2 do for Z = -1, 1, 2 do
+        Corners[#Corners+1] = (CF * CFrame.new(Size * Vector3.new(X, Y, Z))).Position     
+    end end end
+    return Corners
+end
+
+local function DrawEsp(Player)
+    local HRP = Player.Character.HumanoidRootPart
+    local CubeVertices = GetCorners({CFrame = HRP.CFrame * CFrame.new(0, -0.5, 0), Size = Vector3.new(3, 5, 3)})
+
+    DrawLine(CubeVertices[1], CubeVertices[2])
+    DrawLine(CubeVertices[2], CubeVertices[6])
+    DrawLine(CubeVertices[6], CubeVertices[5])
+    DrawLine(CubeVertices[5], CubeVertices[1])
+    DrawQuad(CubeVertices[1], CubeVertices[2], CubeVertices[6], CubeVertices[5])
+   
+    DrawLine(CubeVertices[1], CubeVertices[3])
+    DrawLine(CubeVertices[2], CubeVertices[4])
+    DrawLine(CubeVertices[6], CubeVertices[8])
+    DrawLine(CubeVertices[5], CubeVertices[7])
+    DrawQuad(CubeVertices[2], CubeVertices[4], CubeVertices[8], CubeVertices[6])
+    DrawQuad(CubeVertices[1], CubeVertices[2], CubeVertices[4], CubeVertices[3])
+    DrawQuad(CubeVertices[1], CubeVertices[5], CubeVertices[7], CubeVertices[3])
+    DrawQuad(CubeVertices[5], CubeVertices[7], CubeVertices[8], CubeVertices[6])
+
+    DrawLine(CubeVertices[3], CubeVertices[4])
+    DrawLine(CubeVertices[4], CubeVertices[8])
+    DrawLine(CubeVertices[8], CubeVertices[7])
+    DrawLine(CubeVertices[7], CubeVertices[3])
+    DrawQuad(CubeVertices[3], CubeVertices[4], CubeVertices[8], CubeVertices[7])
+end
+
+local function ClearEsp()
+    for i = 1, #Lines do
+        local Line = rawget(Lines, i)
+        if Line then Line:Remove() end
+    end
+    Lines = {}
+
+    for i = 1, #Quads do
+        local Quad = rawget(Quads, i)
+        if Quad then Quad:Remove() end
+    end
+    Quads = {}
+end
+
+local function BoxEsp()
+    ClearEsp()
+    if not isEspEnabled then return end
+    
+    local Players = PlayersService:GetPlayers()
+    for i = 1, #Players do
+        local Player = rawget(Players, i)
+        if HasCharacter(Player) then
+            DrawEsp(Player)
+        end
+    end
+end
+
+Tab1:Toggle("3D Box ESP", false, function(value)
+    isEspEnabled = value
+    
+    if isEspEnabled then
+        espConnection = RunService.RenderStepped:Connect(BoxEsp)
+    else
+        if espConnection then
+            espConnection:Disconnect()
+            espConnection = nil
+        end
+        ClearEsp()
+    end
+end)
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Blissful4992/ESPs/main/UniversalSkeleton.lua"))()
+
+local Skeletons = {}
+local playerAddedConnection = nil
+local isSkeletonEnabled = false
+
+local function clearSkeletons()
+    for _, skeleton in pairs(Skeletons) do
+        if skeleton and skeleton.Remove then
+            pcall(function() skeleton:Remove() end)
+        elseif skeleton and skeleton.Destroy then
+            pcall(function() skeleton:Destroy() end)
+        end
+    end
+    Skeletons = {}
+end
+
+Tab1:Toggle("Skeleton ESP", false, function(value)
+    isSkeletonEnabled = value
+    
+    if isSkeletonEnabled then
+        -- Bật: Quét toàn bộ người chơi hiện tại để tạo khung xương
+        for _, Player in next, game.Players:GetChildren() do
+            if Player ~= game.Players.LocalPlayer then
+                table.insert(Skeletons, Library:NewSkeleton(Player, true))
+            end
+        end
+        
+        -- Lắng nghe khi có thằng khác vào phòng thì tự động tạo thêm
+        playerAddedConnection = game.Players.PlayerAdded:Connect(function(Player)
+            if isSkeletonEnabled then
+                table.insert(Skeletons, Library:NewSkeleton(Player, true))
+            end
+        end)
+    else
+        -- Tắt: Ngắt kết nối lắng nghe người chơi mới và xóa sạch khung xương cũ
+        if playerAddedConnection then
+            playerAddedConnection:Disconnect()
+            playerAddedConnection = nil
+        end
+        clearSkeletons()
+    end
+end)
