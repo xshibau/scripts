@@ -420,6 +420,80 @@ Tab2:Toggle("Full Bright", false, function(value)
         Lighting.Ambient = origAmbient
     end
 end)
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local noclipConnection = nil
+local isNoclipEnabled = false
+
+-- 1. Toggle Noclip (Đi xuyên tường)
+Tab2:Toggle("Noclip", false, function(value)
+    isNoclipEnabled = value
+    
+    if isNoclipEnabled then
+        noclipConnection = RunService.Stepped:Connect(function()
+            local character = player.Character
+            if character and isNoclipEnabled then
+                for _, part in pairs(character:GetChildren()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end)
+    else
+        if noclipConnection then
+            noclipConnection:Disconnect()
+            noclipConnection = nil
+        end
+        -- Trả lại va chạm bình thường cho nhân vật khi tắt
+        local character = player.Character
+        if character then
+            for _, part in pairs(character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = true
+                end
+            end
+        end
+    end
+end)
+
+-- 2. Toggle Anti-Lag (Tăng FPS)
+Tab2:Toggle("Anti Lag", false, function(value)
+    if value then
+        -- Bật Anti-Lag: Tắt bóng, hạ thấp hiệu ứng ánh sáng, xóa rác kết cấu
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+        
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("Part") or obj:IsA("MeshPart") or obj:IsA("CornerWedgePart") or obj:IsA("TrussPart") then
+                obj.Material = Enum.Material.SmoothPlastic
+                obj.CastShadow = false
+            elseif obj:IsA("Decal") or obj:IsA("Texture") then
+                obj.Transparency = 1
+            elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Smoke") or obj:IsA("Sparkles") or obj:IsA("Fire") then
+                obj.Enabled = false
+            end
+        end
+    else
+        -- Tắt Anti-Lag: Trả lại đồ họa mặc định của game
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
+        Lighting.GlobalShadows = true
+        
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("Part") or obj:IsA("MeshPart") or obj:IsA("CornerWedgePart") or obj:IsA("TrussPart") then
+                obj.Material = Enum.Material.Plastic -- Trả về mặc định cơ bản
+            elseif obj:IsA("Decal") or obj:IsA("Texture") then
+                obj.Transparency = 0
+            elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Smoke") or obj:IsA("Sparkles") or obj:IsA("Fire") then
+                obj.Enabled = true
+            end
+        end
+    end
+end)
 
 Tab2:Seperator("Esp")
 local RunService = game:GetService("RunService")
