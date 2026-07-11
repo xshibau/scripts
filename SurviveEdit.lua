@@ -787,4 +787,5 @@ Tab3:Toggle("Auto Farm Token", false, function(value)
         end
     end
 end)
-Tab3:Seperator("This feature is currently in Beta and under testing. Please report any bugs you find.")
+Tab3:TextLabel("This feature is currently being tested as it is a beta version. If you encounter any errors, please report them to us immediately")
+Tab3:TextLabel("This feature only works when the server has spawned tokens; it's not a bug, it's a feature optimized to prevent anti-cheating")
