@@ -5,6 +5,7 @@ local Library = DarkraiX:Window("Aura Hub [P]","","",Enum.KeyCode.RightControl);
 
 Tab1 = Library:Tab("Main Farm")
 Tab2 = Library:Tab("Players Setting")
+Tab3 = Library:Tab("💰 Token 💰")
 
 Tab1:Seperator("Food")
 local RunService = game:GetService("RunService")
