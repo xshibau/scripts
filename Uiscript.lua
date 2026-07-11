@@ -1004,6 +1004,33 @@ function uitab:Tab(text)
     Sep2.TextSize = 17.000
     Sep2.TextXAlignment = Enum.TextXAlignment.Left -- Căn lề trái ở đây chứ đâu
         end
+     function main:TextLabel(text)
+    local LabelFrame = Instance.new("Frame")
+    local LabelText = Instance.new("TextLabel")
+    
+    LabelFrame.Name = "LabelFrame"
+    LabelFrame.Parent = MainFramePage
+    LabelFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    LabelFrame.BackgroundTransparency = 1.000
+    -- Thao tác tăng AutomaticSize để khi text xuống hàng nhiều dòng thì cái Frame tự dãn chiều cao theo, không bị đè lên UI khác
+    LabelFrame.Size = UDim2.new(0, 425, 0, 0)
+    LabelFrame.AutomaticSize = Enum.AutomaticSize.Y
+    
+    LabelText.Name = "LabelText"
+    LabelText.Parent = LabelFrame
+    LabelText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    LabelText.BackgroundTransparency = 1.000
+    LabelText.Position = UDim2.new(0, 5, 0, 0)
+    LabelText.Size = UDim2.new(0, 420, 0, 0)
+    LabelText.AutomaticSize = Enum.AutomaticSize.Y
+    LabelText.Font = Enum.Font.Gotham -- Không in đậm
+    LabelText.Text = text
+    LabelText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    LabelText.TextSize = 12.000 -- Cỡ chữ 12
+    LabelText.TextXAlignment = Enum.TextXAlignment.Left
+    LabelText.TextYAlignment = Enum.TextYAlignment.Top
+    LabelText.TextWrapped = true -- Tự động xuống hàng khi quá dài
+        end
         
 
     function main:Line()
