@@ -714,3 +714,76 @@ Tab2:Button("Join Server Randoms", function()
         end
     end
 end)
+Tab3:Seperator("Premium Features")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+local tokenConnection = nil
+local isTokenRunning = false
+
+local function findAndTriggerToken()
+    local character = player.Character
+    local hrp = character and character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local mapUtil = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Util")
+    if not mapUtil then return end
+
+    -- Quét tìm Tool có tên Token trong mục Map -> Util
+    local targetToken = nil
+    for _, obj in pairs(mapUtil:GetDescendants()) do
+        if obj:IsA("Tool") and string.lower(obj.Name) == "token" then
+            targetToken = obj
+            break
+        end
+    end
+
+    if targetToken then
+        local targetPart = targetToken:FindFirstChild("Handle") or targetToken:FindFirstChildWhichIsA("BasePart")
+        if targetPart then
+            -- Teleport đến sát cái Token
+            hrp.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+            
+            -- Lock góc nhìn Camera thẳng vào cái Token
+            camera.CFrame = CFrame.new(camera.CFrame.Position, targetPart.Position)
+            
+            -- Tìm và kích hoạt ProximityPrompt gần nhất của nó
+            local prompt = targetToken:FindFirstChildWhichIsA("ProximityPrompt") or targetToken:FindFirstChildWhichIsA("ProximityPrompt", true)
+            if not prompt then
+                for _, child in pairs(targetToken:GetDescendants()) do
+                    if child:IsA("ProximityPrompt") then
+                        prompt = child
+                        break
+                    end
+                end
+            end
+
+            if prompt then
+                task.wait(0.1)
+                prompt:InputHoldBegin()
+                task.wait(prompt.HoldDuration)
+                prompt:InputHoldEnd()
+            end
+        end
+    end
+end
+
+Tab3:Toggle("Auto Farm Token", false, function(value)
+    isTokenRunning = value
+    
+    if isTokenRunning then
+        tokenConnection = RunService.Heartbeat:Connect(function()
+            if isTokenRunning then
+                findAndTriggerToken()
+            end
+        end)
+    else
+        if tokenConnection then
+            tokenConnection:Disconnect()
+            tokenConnection = nil
+        end
+    end
+end)
+Tab3:Seperator("This feature is currently in Beta and under testing. Please report any bugs you find.")
