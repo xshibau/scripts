@@ -789,3 +789,55 @@ Tab3:Toggle("Auto Farm Token", false, function(value)
 end)
 Tab3:TextLabel("This feature is currently being tested as it is a beta version. If you encounter any errors, please report them to us immediately")
 Tab3:TextLabel("This feature only works when the server has spawned tokens; it's not a bug, it's a feature optimized to prevent anti-cheating")
+local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
+
+local tokenConnection = nil
+local isScanning = false
+
+local function sendNotification(title, text, iconId)
+    StarterGui:SetCore("SendNotification", {
+        Title = title,
+        Text = text,
+        Icon = iconId or "rbxassetid://0", -- Thả ID ảnh vào đây nếu muốn đổi hình
+        Duration = 3
+    })
+end
+
+Tab3:Toggle("Scan Token", false, function(value)
+    isScanning = value
+    
+    if isScanning then
+        -- Chờ 0.1 giây để tránh bị spam thông báo ngay lập tức khi vừa nhấn nút
+        task.wait(0.1)
+        
+        -- Quét toàn bộ Workspace xem có cục Token nào không
+        local foundToken = false
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("Tool") and string.lower(obj.Name) == "token" then
+                foundToken = true
+                break
+            end
+        end
+        
+        -- Bắn thông báo kết quả chuẩn bài "nhận huy hiệu"
+        if foundToken then
+            sendNotification(
+                "FOUND ✅", 
+                "Token detected on the Map!", 
+                "rbxassetid://12521191544" -- Icon cái cúp/huy hiệu vàng nhìn cho uy tín
+            )
+        else
+            sendNotification(
+                "FAILURE ❌", 
+                "There are no tokens on the map, find another room!", 
+                "rbxassetid://11419714815" -- Icon dấu X màu đỏ
+            )
+        end
+    else
+        if tokenConnection then
+            tokenConnection:Disconnect()
+            tokenConnection = nil
+        end
+    end
+end)
