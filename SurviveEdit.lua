@@ -6,6 +6,7 @@ local Library = DarkraiX:Window("Aura Hub [P]","","",Enum.KeyCode.RightControl);
 Tab1 = Library:Tab("Main Farm")
 Tab2 = Library:Tab("Players Setting")
 Tab3 = Library:Tab("💰 Token 💰")
+Tab4 = Library:Tab("🏠 Token 🏠")
 
 Tab1:Seperator("Food")
 local RunService = game:GetService("RunService")
@@ -841,3 +842,115 @@ Tab3:Toggle("Scan Token", false, function(value)
         end
     end
 end)
+Tab4:Seperator("Win")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local itemConnection = nil
+local isFarmRunning = false
+local originalPos = nil
+local skyPos = nil
+
+-- CẤU HÌNH TẠI ĐÂY (Mày vào game xem túi đồ tối đa chứa được bao nhiêu cái thì sửa số 10 lại)
+local MAX_BAG_ITEMS = 10 
+
+-- Hàm kiểm tra số lượng item trong túi đồ (Backpack)
+local function getBackpackCount()
+    local backpack = player:FindFirstChild("Backpack")
+    if backpack then
+        return #backpack:GetChildren()
+    end
+    return 0
+end
+
+-- Hàm tự động thả sạch đồ trong người xuống đất khi đầy túi
+local function dropAllItems()
+    local character = player.Character
+    if not character then return end
+    local backpack = player:FindFirstChild("Backpack")
+    
+    if backpack then
+        for _, item in pairs(backpack:GetChildren()) do
+            if item:IsA("Tool") then
+                item.Parent = character -- Lôi ra tay
+                task.wait(0.05)
+                item.Parent = workspace -- Thả xuống đất
+            end
+        end
+    end
+end
+
+local function startUltraFarm()
+    local character = player.Character
+    local hrp = character and character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    -- 1. Kiểm tra túi đồ, nếu max thì xả sạch xuống chân
+    if getBackpackCount() >= MAX_BAG_ITEMS then
+        dropAllItems()
+        task.wait(0.2)
+    end
+
+    -- 2. Quét map bring toàn bộ Tool (Item) về vị trí chân player trên trời
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Tool") and obj.Parent ~= character and obj.Parent ~= player:FindFirstChild("Backpack") then
+            local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
+            if handle then
+                -- Ép tọa độ của item về ngay dưới chân mày trên trời
+                handle.CFrame = hrp.CFrame * CFrame.new(0, -3, 0)
+            end
+        end
+    end
+
+    -- 3. Quét tìm model chứa chữ "Key" để bay tới húp rồi quay lại
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") and string.find(string.lower(obj.Name), "key") then
+            local keyPart = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
+            if keyPart then
+                -- Bay xuống húp Key
+                hrp.CFrame = keyPart.CFrame
+                task.wait(0.2) -- Chờ tí cho game nhận va chạm nhặt key
+                
+                -- Húp xong bay ngược trở lại vị trí an toàn trên trời liền
+                hrp.CFrame = skyPos
+                break
+            end
+        end
+    end
+end
+
+Tab4:Toggle("Auto Farm Win", false, function(value)
+    isFarmRunning = value
+    local character = player.Character
+    local hrp = character and character:FindFirstChild("HumanoidRootPart")
+    
+    if isFarmRunning then
+        if hrp then
+            -- Lưu lại vị trí đứng ban đầu dưới đất
+            originalPos = hrp.CFrame
+            -- Tính toán tọa độ trên trời cao hơn vị trí cũ 25 studs
+            skyPos = originalPos * CFrame.new(0, 25, 0)
+            -- Đưa player lên trời ngay lập tức
+            hrp.CFrame = skyPos
+            
+            -- Chạy vòng lặp quét map liên tục
+            itemConnection = RunService.Heartbeat:Connect(function()
+                if isFarmRunning then
+                    startUltraFarm()
+                end
+            end)
+        end
+    else
+        -- Khi tắt: Ngắt vòng lặp và đưa nhân vật về lại vị trí cũ dưới đất cho mày
+        if itemConnection then
+            itemConnection:Disconnect()
+            itemConnection = nil
+        end
+        if hrp and originalPos then
+            hrp.CFrame = originalPos
+        end
+    end
+end)
+Tab4:TextLabel("Features under development may have bugs or not work. If a feature is incomplete or in beta, the risk of being banned is very high; its use is not recommended.")
+Tab4:TextLabel("The script is not 100% complete yet, so it will be updated three more times, and updates will stop after those three times.")
