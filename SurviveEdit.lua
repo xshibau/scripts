@@ -6,7 +6,7 @@ local Library = DarkraiX:Window("Aura Hub [P]","","",Enum.KeyCode.RightControl);
 Tab1 = Library:Tab("Main Farm")
 Tab2 = Library:Tab("Players Setting")
 Tab3 = Library:Tab("💰 Token 💰")
-Tab4 = Library:Tab("🏠 Farm 🏠")
+Tab4 = Library:Tab("🏠 Items 🏠")
 
 Tab1:Seperator("Food")
 local RunService = game:GetService("RunService")
@@ -842,7 +842,7 @@ Tab3:Toggle("Scan Token", false, function(value)
         end
     end
 end)
-Tab4:Seperator("Win")
+Tab4:Seperator("Warning: May cause system lag.")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
@@ -920,7 +920,7 @@ local function startUltraFarm()
     end
 end
 
-Tab4:Toggle("Auto Farm Win", false, function(value)
+Tab4:Toggle("Bring Item", false, function(value)
     isFarmRunning = value
     local character = player.Character
     local hrp = character and character:FindFirstChild("HumanoidRootPart")
