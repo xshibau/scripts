@@ -4,7 +4,7 @@ local DarkraiX = loadstring(game:HttpGet("https://raw.githubusercontent.com/xshi
 local Library = DarkraiX:Window("Aura Hub [P]","","",Enum.KeyCode.RightControl);
 
 Tab1 = Library:Tab("Main Farm")
-Tab2 = Library:Tab("Players Farm")
+Tab2 = Library:Tab("Players Setting")
 
 Tab1:Seperator("Food")
 local RunService = game:GetService("RunService")
@@ -592,5 +592,51 @@ Tab2:Toggle("Skeleton ESP", false, function(value)
             playerAddedConnection = nil
         end
         clearSkeletons()
+    end
+end)
+Tab2:Seperator("Server Hob")
+
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local targetServerId = ""
+
+Tab2:Textbox("Enter Server JobId", "", true, function(value)
+    targetServerId = value
+end)
+
+Tab2:Button("Join (Jobid in but)", function()
+    if targetServerId and targetServerId ~= "" then
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, targetServerId, player)
+    end
+end)
+
+Tab2:Button("Copy Server JobId", function()
+    local setClipboard = setclipboard or tostring
+    setClipboard(tostring(game.JobId))
+end)
+
+Tab2:Button("Join Server Randoms", function()
+    local success, result = pcall(function()
+        -- Lấy danh sách các server đang hoạt động công khai từ API Roblox
+        local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+        return HttpService:JSONDecode(game:HttpGet(url))
+    end)
+    
+    if success and result and result.data then
+        local validServers = {}
+        for _, server in pairs(result.data) do
+            -- Chỉ chọn server còn chỗ trống và không phải server hiện tại đang chơi
+            if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                table.insert(validServers, server.id)
+            end
+        end
+        
+        if #validServers > 0 then
+            local randomServerId = validServers[math.random(1, #validServers)]
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, randomServerId, player)
+        end
     end
 end)
