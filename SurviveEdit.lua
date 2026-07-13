@@ -75,6 +75,44 @@ Tab1:Toggle("Auto Eat Food", false, function(value)
         end
     end
 end)
+local broughtItems = {}
+
+Tab1:Toggle("Bring Food", false, function(value)
+    _G.BringItemsLoop = value
+    if not value then return end
+    
+    while _G.BringItemsLoop do
+        task.wait(1)
+        
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        
+        local mapDir = game.Workspace:FindFirstChild("Map")
+        local utilDir = mapDir and mapDir:FindFirstChild("Util")
+        local itemsDir = utilDir and utilDir:FindFirstChild("Items")
+        
+        if rootPart and itemsDir then
+            for _, item in ipairs(itemsDir:GetChildren()) do
+                local itemName = string.lower(item.Name)
+                
+                if (itemName == "burger" or itemName == "ham" or itemName == "hotdog") and not broughtItems[item] then
+                    broughtItems[item] = true
+                    
+                    local targetPos = rootPart.Position + (rootPart.CFrame.LookVector * 8) + Vector3.new(0, 15, 0)
+                    
+                    if item:IsA("Tool") and item:FindFirstChild("Handle") then
+                        item.Handle.CFrame = CFrame.new(targetPos)
+                    elseif item:IsA("Model") then
+                        item:SetPrimaryPartCFrame(CFrame.new(targetPos))
+                    elseif item:IsA("BasePart") then
+                        item.CFrame = CFrame.new(targetPos)
+                    end
+                end
+            end
+        end
+    end
+end)
 
 
 Tab1:Seperator("Survive")
