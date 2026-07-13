@@ -140,6 +140,52 @@ Tab1:Toggle("Auto Survive (Beta)", false, function(value)
         end
     end
 end)
+local broughtItems = {}
+local isFlying = false
+local bodyVelocity, bodyGyro
+
+Tab1:Toggle("Hide from the Boss", false, function(value)
+    isFlying = value
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local rootPart = character:FindFirstChild("HumanoidRootPart")
+    
+    if not rootPart then return end
+    
+    if value then
+        rootPart.CFrame = rootPart.CFrame + Vector3.new(0, 25, 0)
+        task.wait(0.1)
+        
+        bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.MaxForce = Vector3.new(4e4, 4e4, 4e4)
+        bodyVelocity.Parent = rootPart
+        
+        bodyGyro = Instance.new("BodyGyro")
+        bodyGyro.MaxTorque = Vector3.new(4e4, 4e4, 4e4)
+        bodyGyro.Parent = rootPart
+        
+        local angle = 0
+        task.spawn(function()
+            while isFlying and rootPart and bodyVelocity and bodyGyro do
+                angle = angle + 0.05
+                local radius = 15
+                local speed = 2
+                
+                local vx = -math.sin(angle) * radius * speed
+                local vz = math.cos(angle) * radius * speed
+                
+                bodyVelocity.Velocity = Vector3.new(vx, 0, vz)
+                bodyGyro.CFrame = CFrame.lookAt(rootPart.Position, rootPart.Position + bodyVelocity.Velocity)
+                
+                task.wait(0.03)
+            end
+        end)
+    else
+        if bodyVelocity then bodyVelocity:Destroy() end
+        if bodyGyro then bodyGyro:Destroy() end
+    end
+end)
+
 
 Tab1:Seperator("Farming")
 local RunService = game:GetService("RunService")
@@ -369,16 +415,53 @@ Tab1:Button("Teleport To Item", function()
         end
     end
 end)
-
+Tab1:Button("Bring All Items (NoLag)", function()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local rootPart = character:FindFirstChild("HumanoidRootPart")
+    
+    local mapDir = game.Workspace:FindFirstChild("Map")
+    local utilDir = mapDir and mapDir:FindFirstChild("Util")
+    local itemsDir = utilDir and utilDir:FindFirstChild("Items")
+    
+    if rootPart and itemsDir then
+        task.spawn(function()
+            for _, item in ipairs(itemsDir:GetChildren()) do
+                if not broughtItems[item] then
+                    broughtItems[item] = true
+                    
+                    local targetPos = rootPart.Position + (rootPart.CFrame.LookVector * 8) + Vector3.new(0, 15, 0)
+                    
+                    if item:IsA("Tool") and item:FindFirstChild("Handle") then
+                        item.Handle.CFrame = CFrame.new(targetPos)
+                    elseif item:IsA("Model") then
+                        item:SetPrimaryPartCFrame(CFrame.new(targetPos))
+                    elseif item:IsA("BasePart") then
+                        item.CFrame = CFrame.new(targetPos)
+                    end
+                    
+                    task.wait(0.1)
+                end
+            end
+        end)
+    end
+end)
 Tab1:Button("Resetlist", function()
+    -- Xóa sạch dữ liệu trong bảng cũ để làm mới hoàn toàn
+    toolList = {} 
+    broughtItems = {} -- Reset luôn danh sách chặn trùng của 2 script trước (nếu cần)
+    
+    -- Gọi hàm quét lại item mới vào toolList
     updateList()
-    -- Thay 'Update' hoặc 'Refresh' tùy theo UI Library mày đang xài
-    if MyDropdown.Update then
-        MyDropdown:Update(toolList)
-    elseif MyDropdown.Refresh then
+    
+    -- Cập nhật giao diện của Dropdown
+    if MyDropdown and MyDropdown.Update then
+         MyDropdown:Update(toolList)
+    elseif MyDropdown and MyDropdown.Refresh then
         MyDropdown:Refresh(toolList)
     end
 end)
+
 
 Tab2:Seperator("Players")
 
